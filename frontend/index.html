@@ -8,42 +8,36 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha512-papm6QK8QxSNaben7nuPh0E+zqS4I2oXeB9lnAaPDXmgZxzi1TL0KWs/oUNsGrD/qjUKPTy3lNMndvrYbFZ+Ug==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 </head>
 <body data-page="landing">
-    <header class="app-header" role="banner">
-      <button class="header-button theme-toggle" id="themeToggle" type="button" aria-live="polite" aria-label="Toggle theme">
-        <span aria-hidden="true" id="themeToggleIcon">🌞</span>
-        <span class="sr-only">Switch between light and dark theme</span>
-      </button>
-      <span class="brand-mark" aria-label="UTA Advisor logo placeholder">UTA Advisor</span>
-      <a class="header-button settings-button" href="settings.html" aria-label="Open settings">
-        <span aria-hidden="true">⚙️</span>
-        
-        <span class="sr-only">Open settings</span>
-      </a>
-    </header>
-<!-- 
-  <div class="app-shell"> -->
-    
-    <main class="hero-card fade-in" aria-labelledby="welcomeTitle">
-        <div>
-            <div>
-                <!-- <p class="hero-subtitle">Hi there<span aria-hidden="true"> 👋</span></p> -->
-                <h1 class="hero-title" id="welcomeTitle" >Plan your UTA semester with confidence</h1>
-            </div>
-            <button id="ssoButton" class="primary-action" type="button">
-                <svg aria-hidden="true" viewBox="0 0 24 24">
-                <path fill="currentColor" d="M12 3a9 9 0 1 1-9 9a9 9 0 0 1 9-9Zm.75 4.5h-1.5v5.06l4.35 2.59l.75-1.23l-3.6-2.14Z" />
-                </svg>
-                Student SSO Sign-In
-            </button>
-            <p class="hero-subtitle">Sign in with your student account to talk with your AI advisor!</p>
-            <!-- <p class="inline-note">We simulate Microsoft login for development. No credentials are stored.</p> -->
-        </div>
+  <header class="app-header" role="banner">
+    <button class="header-button theme-toggle" id="themeToggle" type="button" aria-live="polite" aria-label="Toggle theme">
+      <span aria-hidden="true" id="themeToggleIcon">🌞</span>
+      <span class="sr-only">Switch between light and dark theme</span>
+    </button>
+    <span class="brand-mark" aria-label="UTA Advisor logo placeholder">UTA Advisor</span>
+    <a class="header-button settings-button" href="settings.html" aria-label="Open settings">
+      <span aria-hidden="true">⚙️</span>
+      <span class="sr-only">Open settings</span>
+    </a>
+  </header>
+
+  <div class="app-shell">
+    <main class="surface-card hero-card fade-in" aria-labelledby="welcomeTitle">
+      <div>
+        <h1 class="hero-title" id="welcomeTitle">Plan your UTA semester with confidence</h1>
+        <p class="hero-subtitle">Sign in with your student account to talk with your AI advisor!</p>
+        <button id="ssoButton" class="primary-action" type="button">
+          <svg aria-hidden="true" viewBox="0 0 24 24">
+            <path fill="currentColor" d="M12 3a9 9 0 1 1-9 9a9 9 0 0 1 9-9Zm.75 4.5h-1.5v5.06l4.35 2.59l.75-1.23l-3.6-2.14Z" />
+          </svg>
+          Student SSO Sign-In
+        </button>
+      </div>
     </main>
 
     <footer class="page-footer">
       <p>New here? Sign in to begin your degree setup. Returning students are routed straight to saved preferences.</p>
     </footer>
-  <!-- </div> -->
+  </div>
 
   <div class="sr-only" aria-live="polite" id="themeStatus"></div>
 

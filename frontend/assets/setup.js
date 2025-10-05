@@ -3,6 +3,8 @@ const LOGGED_KEY = "loggedIn";
 
 const page = document.body.dataset.page;
 const isSetupPage = page === "setup";
+const isSettingsPage = page === "settings";
+const isStageFormPage = isSetupPage || isSettingsPage;
 
 const form = document.querySelector("form");
 const tagsContainer = document.getElementById("majorTags");
@@ -15,12 +17,13 @@ const electiveButtons = Array.from(document.querySelectorAll(".pill-option"));
 const gradSelect = document.getElementById("gradTerm");
 const skipButton = document.getElementById("skipSetup");
 const resetButton = document.getElementById("resetDefaults");
-const stageContainer = isSetupPage ? document.getElementById("setupStages") : null;
-const stages = isSetupPage ? Array.from(document.querySelectorAll(".setup-stage")) : [];
-const stageDots = isSetupPage ? Array.from(document.querySelectorAll(".stage-dot")) : [];
-const stageCurrentLabel = isSetupPage ? document.getElementById("stageCurrent") : null;
-const stagePrevButton = isSetupPage ? document.getElementById("stagePrev") : null;
-const stageNextButton = isSetupPage ? document.getElementById("stageNext") : null;
+const stageContainer = isStageFormPage ? document.getElementById("setupStages") : null;
+const stages = isStageFormPage ? Array.from(document.querySelectorAll(".setup-stage")) : [];
+const stageDots = isStageFormPage ? Array.from(document.querySelectorAll(".stage-dot")) : [];
+const stageCurrentLabel = isStageFormPage ? document.getElementById("stageCurrent") : null;
+const stagePrevButton = isStageFormPage ? document.getElementById("stagePrev") : null;
+const stageNextButton = isStageFormPage ? document.getElementById("stageNext") : null;
+const setupHero = isStageFormPage ? document.querySelector(".setup-hero") : null;
 let currentStageIndex = 0;
 
 const HIDDEN_VALIDATION_INPUT = document.createElement("input");
@@ -302,7 +305,7 @@ function gatherTimeBlocks(selectedDays) {
 }
 
 function validateStage(index) {
-	if (!isSetupPage) return true;
+	if (!isStageFormPage) return true;
 	switch (index) {
 		case 0: {
 			if (!creditsInput) return true;
@@ -446,10 +449,95 @@ function initPresets() {
 }
 
 function initElectives() {
-	electiveButtons.forEach((btn) => {
-		btn.dataset.selected = "false";
-		btn.addEventListener("click", () => toggleElective(btn));
-	});
+    electiveButtons.forEach((btn) => {
+        btn.dataset.selected = "false";
+        btn.addEventListener("click", () => toggleElective(btn));
+    });
+
+    const otherBtn = document.getElementById("otherInterestsBtn");
+    const otherBox = document.getElementById("otherInterestsBox");
+    const otherInput = document.getElementById("otherInterestsInput");
+    const otherTags = document.getElementById("otherInterestsTags");
+    if (otherBtn && otherBox && otherInput && otherTags) {
+        // load stored otherInterests (if any) and keep in a Set to prevent duplicates
+        const stored = loadStoredSetup();
+        const initial = (stored && stored.student && Array.isArray(stored.student.otherInterests)) ? stored.student.otherInterests : [];
+        const otherSet = new Set(initial);
+
+        // clear existing DOM tags to avoid duplicates
+        Array.from(otherTags.querySelectorAll(".tag-chip")).forEach((n) => n.remove());
+
+        const persistOtherInterests = () => {
+            // merge into existing stored payload (or create new)
+            const base = loadStoredSetup() || { student: {} };
+            base.student.otherInterests = Array.from(otherSet);
+            base.savedAt = new Date().toISOString();
+            savePayload(base);
+        };
+
+        const renderOtherChip = (value) => {
+            const chip = document.createElement("span");
+            chip.className = "tag-chip";
+            chip.dataset.value = value;
+            chip.textContent = value;
+            const remove = document.createElement("button");
+            remove.type = "button";
+            remove.className = "remove-tag";
+            remove.setAttribute("aria-label", `Remove ${value}`);
+            remove.textContent = "×";
+            remove.addEventListener("click", () => {
+                otherSet.delete(value);
+                chip.remove();
+                persistOtherInterests();
+            });
+            chip.append(remove);
+            otherTags.append(chip);
+        };
+
+        // render any initial stored chips
+        initial.forEach((v) => {
+            if (typeof v === "string" && v.trim()) renderOtherChip(v);
+        });
+
+        const showBox = () => {
+            otherBox.hidden = false;
+            otherBox.dataset.expanded = "true";
+            window.requestAnimationFrame(() => otherInput.focus());
+        };
+
+        const hideBox = () => {
+            otherBox.hidden = true;
+            otherBox.dataset.expanded = "false";
+        };
+
+        otherBtn.addEventListener("click", () => {
+            if (otherBox.hidden) {
+                showBox();
+            } else {
+                hideBox();
+            }
+        });
+
+        otherInput.addEventListener("keydown", (event) => {
+            if (event.key !== "Enter") return;
+            const value = otherInput.value.trim();
+            if (!value) return;
+            event.preventDefault();
+            if (otherSet.has(value)) {
+                otherInput.value = "";
+                return;
+            }
+            otherSet.add(value);
+            renderOtherChip(value);
+            persistOtherInterests();
+            otherInput.value = "";
+        });
+
+        otherInput.addEventListener("blur", () => {
+            // keep chips, just clear the input
+            otherInput.value = "";
+        });
+    }
 }
 
 function initFormFlow() {
@@ -463,7 +551,7 @@ function initFormFlow() {
 }
 
 function updateStageIndicator() {
-	if (!isSetupPage) return;
+	if (!isStageFormPage) return;
 	const total = stages.length;
 	const clamped = Math.max(0, Math.min(currentStageIndex, total - 1));
 	stageDots.forEach((dot) => {
@@ -487,7 +575,7 @@ function updateStageIndicator() {
 }
 
 function setStage(index, options = {}) {
-	if (!isSetupPage || !stages.length) return;
+	if (!isStageFormPage || !stages.length) return;
 	const { silent = false } = options;
 	const clamped = Math.max(0, Math.min(index, stages.length - 1));
 	if (clamped === currentStageIndex && silent) {
@@ -509,16 +597,16 @@ function setStage(index, options = {}) {
 }
 
 function initStageFlow() {
-	if (!isSetupPage || !stageContainer || !stages.length) return;
+	if (!isStageFormPage || !form || !stagePrevButton || !stageNextButton || !stages.length) return;
 	setStage(0, { silent: true });
 	updateStageIndicator();
-	stagePrevButton?.addEventListener("click", () => {
+	stagePrevButton.addEventListener("click", () => {
 		const destination = currentStageIndex - 1;
 		if (destination >= 0) {
 			setStage(destination);
 		}
 	});
-	stageNextButton?.addEventListener("click", () => {
+	stageNextButton.addEventListener("click", () => {
 		if (!validateStage(currentStageIndex)) return;
 		setStage(currentStageIndex + 1);
 	});
@@ -531,6 +619,58 @@ function initStageFlow() {
 		if (!validateStage(currentStageIndex)) return;
 		setStage(currentStageIndex + 1);
 	});
+}
+
+function runIntroSequence() {
+	if (!isStageFormPage || !form) return;
+	if (!setupHero) {
+		form.dataset.introState = "ready";
+		stageContainer?.removeAttribute("aria-hidden");
+		setStage(0);
+		return;
+	}
+
+	const prefersReducedMotion = typeof window !== "undefined" && typeof window.matchMedia === "function" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+	if (prefersReducedMotion) {
+		setupHero.dataset.introState = "hidden";
+		setupHero.hidden = true;
+		setupHero.setAttribute("aria-hidden", "true");
+		form.dataset.introState = "ready";
+		stageContainer?.removeAttribute("aria-hidden");
+		setStage(0);
+		return;
+	}
+
+	let revealed = false;
+	const revealForm = () => {
+		if (revealed) return;
+		revealed = true;
+		form.dataset.introState = "ready";
+		form.removeAttribute("aria-hidden");
+		stageContainer?.removeAttribute("aria-hidden");
+		setupHero.setAttribute("aria-hidden", "true");
+		setupHero.hidden = true;
+		setStage(0);
+	};
+
+	form.dataset.introState = "pending";
+	form.setAttribute("aria-hidden", "true");
+	stageContainer?.setAttribute("aria-hidden", "true");
+	setupHero.dataset.introState = "visible";
+
+	const onHeroTransitionEnd = (event) => {
+		if (event.propertyName !== "opacity") return;
+		setupHero.removeEventListener("transitionend", onHeroTransitionEnd);
+		window.setTimeout(revealForm, 80);
+	};
+
+	window.setTimeout(() => {
+		setupHero.dataset.introState = "hidden";
+		setupHero.addEventListener("transitionend", onHeroTransitionEnd, { once: true });
+		window.setTimeout(revealForm, 700);
+	}, 2000);
+
+	setStage(0, { silent: true });
 }
 
 function guardRouting() {
@@ -567,6 +707,7 @@ function init() {
 
 	const stored = loadStoredSetup();
 	hydrateFields(stored);
+	runIntroSequence();
 }
 
 if (guardRouting()) {

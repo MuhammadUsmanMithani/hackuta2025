@@ -48,7 +48,21 @@ if (!setupData) {
 	throw new Error("Routing to login/setup");
 }
 
+let setupProfile = {};
+try {
+	setupProfile = JSON.parse(setupData);
+} catch (error) {
+	console.warn("advisor:chat", "Failed to parse stored setup", error);
+	setupProfile = {};
+}
+
 const knowledgeCache = {};
+const conversation = [];
+
+function recordConversation(role, content) {
+	if (!content) return;
+	conversation.push({ role, content });
+}
 
 async function loadKnowledge() {
 	const entries = Object.entries(DATA_PATH);
@@ -105,7 +119,7 @@ function renderMarkdown(text) {
 		.join("");
 }
 
-function appendMessage(role, content) {
+function appendMessage(role, content, options = {}) {
 	const bubble = document.createElement("article");
 	bubble.className = "chat-message";
 	bubble.dataset.role = role;
@@ -116,6 +130,9 @@ function appendMessage(role, content) {
 	}
 	chatLog.append(bubble);
 	chatLog.scrollTo({ top: chatLog.scrollHeight, behavior: "smooth" });
+	if (options.recordHistory !== false) {
+		recordConversation(role, content);
+	}
 }
 
 let typingIndicator;
@@ -275,13 +292,14 @@ async function sendMessage(message) {
 	showTyping();
 
 	const payload = {
-		user: setupData,
+		user: setupProfile,
 		knowledge: {
 			scheduleOptions: knowledgeCache.scheduleOptions ?? "",
 			professors: knowledgeCache.professors ?? "",
 			degreePlan: knowledgeCache.degreePlan ?? "",
 		},
 		message,
+		history: conversation,
 	};
 
 	try {

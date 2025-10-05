@@ -46,11 +46,12 @@ class GeminiAdapter:
 		user_setup: str,
 		knowledge: Dict[str, str],
 		message: str,
+		history: Optional[List[Dict[str, Any]]] = None,
 	) -> AdapterResult:
 		if self._model is None:
-			return self._fallback_response(user_setup, knowledge, message)
+			return self._fallback_response(user_setup, knowledge, message, history=history)
 
-		prompt = self._build_prompt(user_setup, knowledge, message)
+		prompt = self._build_prompt(user_setup, knowledge, message, history)
 		try:
 			result = await asyncio.to_thread(self._model.generate_content, prompt)
 			text = result.text if hasattr(result, "text") else ""
@@ -67,6 +68,7 @@ class GeminiAdapter:
 				user_setup,
 				knowledge,
 				message,
+				history=history,
 				notes=f"Gemini error: {error}",
 			)
 
@@ -83,10 +85,27 @@ class GeminiAdapter:
 			snippet = snippet[4:].strip()
 		return json.loads(snippet)
 
-	def _build_prompt(self, user_setup: str, knowledge: Dict[str, str], message: str) -> str:
+	def _build_prompt(
+		self,
+		user_setup: str,
+		knowledge: Dict[str, str],
+		message: str,
+		history: Optional[List[Dict[str, Any]]] = None,
+	) -> str:
 		schedule_options = knowledge.get("scheduleOptions", "")
 		professors = knowledge.get("professors", "")
 		degree_plan = knowledge.get("degreePlan", "")
+
+		history_blocks: List[str] = []
+		if history:
+			for turn in history:
+				role = str(turn.get("role", "assistant")).lower()
+				role_label = "Student" if role == "user" else "Advisor"
+				content = str(turn.get("content", "")).strip()
+				if content:
+					history_blocks.append(f"{role_label}: {content}")
+
+		conversation = "\n".join(history_blocks) if history_blocks else "(No prior conversation)"
 
 		return textwrap.dedent(
 			f"""
@@ -113,6 +132,9 @@ class GeminiAdapter:
 			Next-term schedule options JSON:
 			{schedule_options}
 
+			Conversation so far:
+			{conversation}
+
 			Student question:
 			{message}
 			"""
@@ -123,6 +145,7 @@ class GeminiAdapter:
 		user_setup: str,
 		knowledge: Dict[str, str],
 		message: str,
+		history: Optional[List[Dict[str, Any]]] = None,
 		notes: Optional[str] = None,
 	) -> AdapterResult:
 		"""Generate a deterministic plan when Gemini is unavailable."""

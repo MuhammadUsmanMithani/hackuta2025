@@ -22,10 +22,15 @@
   <div class="app-shell">
 
     <main class="surface-card setup-shell" aria-labelledby="setupTitle">
-      <div class="setup-hero" data-animate="slow-rise">
-        <h1 class="hero-title" id="setupTitle">Let’s sketch the semester together</h1>
-        <p class="hero-subtitle">Answer a few gentle prompts. We’ll warm up the advisor with the details that matter most to you.</p>
-      </div>
+    <div class="setup-hero" data-animate="slow-rise" id="setupHero">
+      <h1 class="hero-title" id="setupTitle">Let’s sketch the semester together</h1>
+      <p class="hero-subtitle">Answer a few gentle prompts. We’ll warm up the advisor with the details that matter most to you.</p>
+    </div>
+    <script>
+      setTimeout(() => {
+        document.getElementById('setupHero')?.classList.add('fade-out');
+      }, 2000);
+    </script>
 
       <form id="setupForm" class="setup-form" novalidate>
         <div class="stage-indicator" role="status" aria-live="polite">
@@ -53,8 +58,8 @@
               </section>
 
               <section class="field-group">
-                <label for="creditsInput">Credits you plan to take</label>
-                <p class="field-description">Most students take 12-16 credits. We use this to balance workload.</p>
+                <label for="creditsInput">Planned credits for the next semester</label>
+                <p class="field-description">Most students take 12-19 credits. We use this to balance workload.</p>
                 <input id="creditsInput" name="credits" type="number" min="1" max="21" inputmode="numeric" required>
               </section>
             </div>
@@ -111,8 +116,47 @@
                   <button type="button" class="pill-option" data-value="data">Data Science</button>
                   <button type="button" class="pill-option" data-value="entrepreneurship">Entrepreneurship</button>
                   <button type="button" class="pill-option" data-value="creative">Creative Arts</button>
+                  <button type="button" class="pill-option" id="otherInterestsBtn" data-value="other">Other…</button>
+                </div>
+                <div id="otherInterestsBox" style="display:none; margin-top: 0.5em;">
+                  <label for="otherInterestsInput" class="sr-only">Other interests</label>
+                  <input id="otherInterestsInput" type="text" autocomplete="off" placeholder="Type an interest and press Enter" aria-label="Other interests">
+                  <div id="otherInterestsTags" class="tag-input" aria-live="polite"></div>
                 </div>
               </section>
+              <script>
+                // Show/hide other interests box
+                document.addEventListener('DOMContentLoaded', () => {
+                  const btn = document.getElementById('otherInterestsBtn');
+                  const box = document.getElementById('otherInterestsBox');
+                  const input = document.getElementById('otherInterestsInput');
+                  const tags = document.getElementById('otherInterestsTags');
+                  if (btn && box && input && tags) {
+                    btn.addEventListener('click', () => {
+                      box.style.display = box.style.display === 'none' ? 'block' : 'none';
+                      if (box.style.display === 'block') input.focus();
+                    });
+                    input.addEventListener('keydown', (e) => {
+                      if (e.key === 'Enter' && input.value.trim()) {
+                        e.preventDefault();
+                        const val = input.value.trim();
+                        const tag = document.createElement('span');
+                        tag.className = 'tag';
+                        tag.textContent = val;
+                        const remove = document.createElement('button');
+                        remove.type = 'button';
+                        remove.className = 'remove-tag';
+                        remove.textContent = '×';
+                        remove.setAttribute('aria-label', `Remove ${val}`);
+                        remove.onclick = () => tag.remove();
+                        tag.appendChild(remove);
+                        tags.appendChild(tag);
+                        input.value = '';
+                      }
+                    });
+                  }
+                });
+              </script>
 
               <section class="field-group">
                 <label for="gradTerm">Expected graduation term</label>
@@ -147,10 +191,6 @@
         </div>
       </form>
     </main>
-
-    <footer class="page-footer">
-      <button class="link-button" id="skipSetup" type="button">Skip for now and chat</button>
-    </footer>
   </div>
 
   <div class="sr-only" aria-live="polite" id="themeStatus"></div>

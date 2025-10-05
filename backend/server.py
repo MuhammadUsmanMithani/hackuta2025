@@ -7,7 +7,7 @@ import json
 import logging
 from functools import lru_cache
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any, Dict, List, Optional
 
 from dotenv import load_dotenv
 from flask import Flask, jsonify, request
@@ -38,17 +38,59 @@ class KnowledgePayload(BaseModel):
     professors: str = Field(..., description="JSON string of professor ratings")
     degreePlan: str = Field(..., description="JSON string of degree requirements")
 
+    @classmethod
+    def from_local_data(cls, max_length: Optional[int] = None) -> "KnowledgePayload":
+        """Load JSON files from DATA_DIR and return compacted JSON strings.
+        If max_length is provided, strings are truncated with an ellipsis.
+        """
+        try:
+            schedule = load_json(DATA_DIR / "schedule.json")
+            professors = load_json(DATA_DIR / "professors.json")
+            degree = load_json(DATA_DIR / "degree.json")
+        except Exception as err:
+            raise RuntimeError(f"Failed to load local JSON fixtures: {err}")
+
+        def compact(obj: Any) -> str:
+            s = json.dumps(obj, separators=(",", ":"), ensure_ascii=False)
+            if max_length and len(s) > max_length:
+                return s[: max_length - 3] + "..."
+            return s
+
+        return cls(
+            scheduleOptions=compact(schedule),
+            professors=compact(professors),
+            degreePlan=compact(degree),
+        )
+
+
+class ConversationTurn(BaseModel):
+    role: str = Field(..., description="Speaker role such as 'user' or 'assistant'")
+    content: str = Field(..., description="Message content")
+
+    @field_validator("role")
+    def normalize_role(cls, value: str) -> str:  # noqa: D417
+        role = value.strip().lower()
+        if role not in {"user", "assistant"}:
+            raise ValueError("role must be 'user' or 'assistant'")
+        return role
+
 
 class QueryRequest(BaseModel):
     user: str = Field(..., description="Serialized student setup JSON from localStorage")
     knowledge: KnowledgePayload
     message: str = Field(..., min_length=1)
+    history: List[ConversationTurn] = Field(default_factory=list)
 
     @field_validator("user", mode="before")
     def ensure_json_like(cls, value: Any) -> Any:  # noqa: D417
-        if not isinstance(value, str):
-            raise ValueError("User payload must be a JSON string")
-        return value
+        if isinstance(value, str):
+            return value
+        if isinstance(value, dict):
+            try:
+                return json.dumps(value, separators=(",", ":"), ensure_ascii=False)
+            except (TypeError, ValueError) as error:  # pragma: no cover - guard rails
+                raise ValueError("User payload must be JSON serializable") from error
+        raise ValueError("User payload must be a JSON string or object")
 
 
 class QueryResponse(BaseModel):
@@ -62,8 +104,23 @@ class CachedData(RootModel):
 
 
 def load_json(path: Path) -> Any:
-    with path.open("r", encoding="utf-8") as handle:
-        return json.load(handle)
+    if not path.exists():
+        LOGGER.warning("JSON fixture not found at %s; using empty object", path)
+        return {}
+
+    # Use 'utf-8-sig' to strip a potential BOM and read the file as text so we can
+    # detect and short-circuit on empty content before attempting to parse JSON.
+    with path.open("r", encoding="utf-8-sig") as handle:
+        content = handle.read()
+        if not content.strip():
+            LOGGER.warning("Empty JSON file at %s; using empty object", path)
+            return {}
+
+        try:
+            return json.loads(content)
+        except json.JSONDecodeError:
+            LOGGER.warning("Empty or malformed JSON in %s; using empty object", path)
+            return {}
 
 
 @lru_cache(maxsize=1)
@@ -141,12 +198,15 @@ def query_advisor() -> Any:
     except ValidationError as error:
         return jsonify({"detail": "Invalid request", "errors": error.errors()}), 400
 
+    history_payload = [turn.model_dump() for turn in query.history]
+
     try:
         result: AdapterResult = _run_async(
             adapter.generate_response(
                 user_setup=query.user,
                 knowledge=query.knowledge.model_dump(),
                 message=query.message,
+                history=history_payload,
             )
         )
     except json.JSONDecodeError as error:
