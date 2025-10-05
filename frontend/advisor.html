@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Advisor Chat</title>
+  <link rel="stylesheet" href="assets/styles.css">
+</head>
+<body data-page="advisor">
+    <header class="app-header" role="banner">
+      <button class="header-button theme-toggle" id="themeToggle" type="button" aria-live="polite" aria-label="Toggle theme">
+        <span aria-hidden="true" id="themeToggleIcon">🌞</span>
+        <span class="sr-only">Switch between light and dark theme</span>
+      </button>
+      <span class="brand-mark" aria-label="UTA Advisor logo placeholder">UTA Advisor</span>
+      <a class="header-button settings-button" href="settings.html" aria-label="Open settings">
+        <span aria-hidden="true">⚙️</span>
+        
+        <span class="sr-only">Open settings</span>
+      </a>
+    </header>
+  <div class="app-shell">
+    <main class="auto-grid" aria-labelledby="advisorTitle">
+      <section class="surface-card" aria-live="polite">
+        <header>
+          <h1 class="hero-title" id="advisorTitle">Hi there, ready to plan?</h1>
+          <p class="hero-subtitle" id="advisorSubtitle">Ask about courses, professors, or build a schedule. Your saved preferences shape every answer.</p>
+        </header>
+        <div class="chat-shell">
+          <div class="chat-log" id="chatLog" aria-live="polite" aria-relevant="additions" aria-label="Conversation history"></div>
+          <div class="chat-composer">
+            <div class="composer-row">
+              <textarea id="messageInput" name="message" placeholder="Anything you need help with?" aria-label="Message advisor" required></textarea>
+              <button class="send-button" id="sendButton" type="button">
+                <svg aria-hidden="true" viewBox="0 0 24 24">
+                  <path fill="currentColor" d="M20.92 4.39a.75.75 0 0 0-.82-.14L3.6 11.06a.75.75 0 0 0 .04 1.4l6.32 2.43l2.43 6.32a.75.75 0 0 0 1.37.08l7-16.5a.75.75 0 0 0-.84-1Z" />
+                </svg>
+                Send
+              </button>
+            </div>
+            <div class="composer-row">
+              <small class="inline-note">We pre-load degree maps, professor insights, and schedule options from UTA datasets.</small>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="surface-card" aria-labelledby="calendarTitle">
+        <div>
+          <h2 class="hero-subtitle" id="calendarTitle">Suggested weekly calendar</h2>
+          <p class="field-description">Shaded blocks show the latest schedule returned by the advisor. Conflicts glow orange so you can adjust quickly.</p>
+        </div>
+        <div id="calendarContainer">
+          <p class="field-description">Ask the advisor for a plan to see it here.</p>
+        </div>
+        <div class="calendar-legend" aria-hidden="true">
+          <span><span class="legend-swatch" data-type="regular"></span>Course window</span>
+          <span><span class="legend-swatch" data-type="conflict"></span>Conflict</span>
+        </div>
+      </section>
+    </main>
+
+    <footer class="page-footer">
+      <p>Need to adjust inputs? Visit <a href="settings.html">settings</a> or <a href="setup.html">rerun setup</a>.</p>
+    </footer>
+  </div>
+
+  <div class="sr-only" aria-live="polite" id="themeStatus"></div>
+
+  <script type="module" src="assets/theme.js"></script>
+  <script type="module" src="assets/chatbot.js"></script>
+</body>
+</html>

@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Set up your advisor profile</title>
+  <link rel="stylesheet" href="assets/styles.css">
+</head>
+<body data-page="setup">
+    <header class="app-header" role="banner">
+      <button class="header-button theme-toggle" id="themeToggle" type="button" aria-live="polite" aria-label="Toggle theme">
+        <span aria-hidden="true" id="themeToggleIcon">🌞</span>
+        <span class="sr-only">Switch between light and dark theme</span>
+      </button>
+      <span class="brand-mark" aria-label="UTA Advisor logo placeholder">UTA Advisor</span>
+      <a class="header-button settings-button" href="settings.html" aria-label="Open settings">
+        <span aria-hidden="true">⚙️</span>
+        
+        <span class="sr-only">Open settings</span>
+      </a>
+    </header>
+  <div class="app-shell">
+
+    <main class="surface-card setup-shell" aria-labelledby="setupTitle">
+      <div class="setup-hero" data-animate="slow-rise">
+        <h1 class="hero-title" id="setupTitle">Let’s sketch the semester together</h1>
+        <p class="hero-subtitle">Answer a few gentle prompts. We’ll warm up the advisor with the details that matter most to you.</p>
+      </div>
+
+      <form id="setupForm" class="setup-form" novalidate>
+        <div class="stage-indicator" role="status" aria-live="polite">
+          <div class="stage-indicator__dots" aria-hidden="true">
+            <span class="stage-dot" data-stage="0"></span>
+            <span class="stage-dot" data-stage="1"></span>
+            <span class="stage-dot" data-stage="2"></span>
+          </div>
+          <p class="stage-indicator__label">Step <span id="stageCurrent">1</span> of 3</p>
+        </div>
+
+        <div class="setup-stages" id="setupStages">
+          <section class="setup-stage" data-stage-index="0" aria-labelledby="stageTitle0">
+            <header class="stage-header">
+              <h2 class="stage-title" id="stageTitle0">Tell us what’s inspiring you</h2>
+              <p class="stage-subtitle">Stack your dream classes and give us a sense of your workload comfort zone.</p>
+            </header>
+            <div class="stage-content form-grid">
+              <section class="field-group" aria-describedby="majorHelp">
+                <label for="majorInput">Desired classes, majors, or minors</label>
+                <p class="field-description" id="majorHelp">Add course codes or program names. Press Enter after each item.</p>
+                <div class="tag-input" id="majorTags" data-field="interests" aria-live="polite">
+                  <input id="majorInput" type="text" autocomplete="off" aria-label="Type a class or program and press Enter" placeholder="e.g. CSE 3311, Math minor" />
+                </div>
+              </section>
+
+              <section class="field-group">
+                <label for="creditsInput">Credits you plan to take</label>
+                <p class="field-description">Most students take 12-16 credits. We use this to balance workload.</p>
+                <input id="creditsInput" name="credits" type="number" min="1" max="21" inputmode="numeric" required>
+              </section>
+            </div>
+          </section>
+
+          <section class="setup-stage" data-stage-index="1" aria-labelledby="stageTitle1">
+            <header class="stage-header">
+              <h2 class="stage-title" id="stageTitle1">Shape your weekly rhythm</h2>
+              <p class="stage-subtitle">Choose the days you’d love to be on campus and the windows that feel best.</p>
+            </header>
+            <div class="stage-content form-grid">
+              <section class="field-group" aria-describedby="daysHelp">
+                <span class="glow-underline">Preferred class days</span>
+                <p class="field-description" id="daysHelp">Pick the days you want to attend campus. We will prioritize these.</p>
+                <div class="day-grid" role="group" aria-labelledby="daysHelp">
+                  <label class="day-option"><input type="checkbox" value="mon">Mon</label>
+                  <label class="day-option"><input type="checkbox" value="tue">Tue</label>
+                  <label class="day-option"><input type="checkbox" value="wed">Wed</label>
+                  <label class="day-option"><input type="checkbox" value="thu">Thu</label>
+                  <label class="day-option"><input type="checkbox" value="fri">Fri</label>
+                  <label class="day-option"><input type="checkbox" value="sat">Sat</label>
+                  <label class="day-option"><input type="checkbox" value="sun">Sun</label>
+                </div>
+              </section>
+
+              <section class="field-group">
+                <span class="glow-underline">Time windows per day</span>
+                <p class="field-description" id="timeHelp">Once you pick days, choose start and end times for each. You can apply presets or fine tune manually.</p>
+                <div class="time-blocks" id="timeBlocks" aria-describedby="timeHelp">
+                  <p class="field-description">Select days first to see time windows.</p>
+                  <div class="preset-buttons" role="group" aria-label="Quick time presets">
+                    <button type="button" class="preset-button" data-preset="morning">Morning focus</button>
+                    <button type="button" class="preset-button" data-preset="noon">Noon to 5p</button>
+                    <button type="button" class="preset-button" data-preset="evening">Evening only</button>
+                  </div>
+                </div>
+              </section>
+            </div>
+          </section>
+
+          <section class="setup-stage" data-stage-index="2" aria-labelledby="stageTitle2">
+            <header class="stage-header">
+              <h2 class="stage-title" id="stageTitle2">Add elective vibes & timing</h2>
+              <p class="stage-subtitle">We’ll keep these wishes handy so the advisor can surprise you with aligned picks.</p>
+            </header>
+            <div class="stage-content form-grid">
+              <section class="field-group">
+                <label>Elective interests</label>
+                <p class="field-description">Tap any that match. We surface related electives when openings exist.</p>
+                <div class="pill-options" id="electiveOptions" role="group" aria-label="Elective interests multi-select">
+                  <button type="button" class="pill-option" data-value="ai">AI &amp; Machine Learning</button>
+                  <button type="button" class="pill-option" data-value="security">Cybersecurity</button>
+                  <button type="button" class="pill-option" data-value="hci">UX &amp; HCI</button>
+                  <button type="button" class="pill-option" data-value="data">Data Science</button>
+                  <button type="button" class="pill-option" data-value="entrepreneurship">Entrepreneurship</button>
+                  <button type="button" class="pill-option" data-value="creative">Creative Arts</button>
+                </div>
+              </section>
+
+              <section class="field-group">
+                <label for="gradTerm">Expected graduation term</label>
+                <div class="auto-grid">
+                  <select id="gradTerm" name="gradTerm" required aria-describedby="gradHelp">
+                    <option value="" disabled selected>Select a term</option>
+                  </select>
+                  <p class="field-description" id="gradHelp">Pick the term closest to your expected graduation. We align degree pacing.</p>
+                </div>
+              </section>
+
+              <div class="stage-actions">
+                <button class="primary-action" type="submit">
+                  <svg aria-hidden="true" viewBox="0 0 24 24">
+                    <path fill="currentColor" d="M4.5 12a.75.75 0 0 1 .75-.75h9.69l-3.22-3.22a.75.75 0 1 1 1.06-1.06l4.5 4.5a.75.75 0 0 1 0 1.06l-4.5 4.5a.75.75 0 1 1-1.06-1.06l3.22-3.22H5.25A.75.75 0 0 1 4.5 12Z" />
+                  </svg>
+                  Save and continue to advisor
+                </button>
+                <p class="field-description">You can adjust everything later in settings.</p>
+              </div>
+            </div>
+          </section>
+        </div>
+
+        <div class="stage-navigation" aria-controls="setupStages">
+          <button class="nav-arrow" type="button" id="stagePrev" aria-label="Go to previous step">
+            <span aria-hidden="true">←</span>
+          </button>
+          <button class="nav-arrow nav-arrow--primary" type="button" id="stageNext" aria-label="Go to next step">
+            <span aria-hidden="true">→</span>
+          </button>
+        </div>
+      </form>
+    </main>
+
+    <footer class="page-footer">
+      <button class="link-button" id="skipSetup" type="button">Skip for now and chat</button>
+    </footer>
+  </div>
+
+  <div class="sr-only" aria-live="polite" id="themeStatus"></div>
+
+  <script type="module" src="assets/theme.js"></script>
+  <script type="module" src="assets/setup.js"></script>
+</body>
+</html>

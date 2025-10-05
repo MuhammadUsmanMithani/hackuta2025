@@ -1,0 +1,50 @@
+[
+	{
+		"profId": "p001",
+		"name": "Jamie Doe",
+		"rating": 4.7,
+		"gradeTilt": "lenient",
+		"difficulty": 2.4,
+		"notes": "Hands-on labs, lots of feedback on projects"
+	},
+	{
+		"profId": "p002",
+		"name": "Avery Lee",
+		"rating": 3.9,
+		"gradeTilt": "average",
+		"difficulty": 3.4,
+		"notes": "Clear lectures, expects strong preparation"
+	},
+	{
+		"profId": "p003",
+		"name": "Priya Patel",
+		"rating": 4.8,
+		"gradeTilt": "balanced",
+		"difficulty": 2.9,
+		"notes": "Project-based machine learning course with Kaggle mini-competitions"
+	},
+	{
+		"profId": "p004",
+		"name": "Miguel Santos",
+		"rating": 4.3,
+		"gradeTilt": "rigorous",
+		"difficulty": 3.6,
+		"notes": "Focuses on industry tooling and code reviews"
+	},
+	{
+		"profId": "p005",
+		"name": "Sarah Chen",
+		"rating": 4.9,
+		"gradeTilt": "lenient",
+		"difficulty": 2.1,
+		"notes": "Interactive studio sessions and design critiques"
+	},
+	{
+		"profId": "p006",
+		"name": "Daniel Kim",
+		"rating": 4.1,
+		"gradeTilt": "average",
+		"difficulty": 3.1,
+		"notes": "Frequent quizzes, emphasizes real-world stats examples"
+	}
+]

@@ -1,0 +1,93 @@
+[
+	{
+		"courseId": "CSE-1320",
+		"courseTitle": "Intermediate Programming",
+		"section": "001",
+		"days": ["mon", "wed"],
+		"start": "09:30",
+		"end": "10:50",
+		"building": "NH",
+		"room": "114",
+		"profId": "p001",
+		"capacity": 45,
+		"openSeats": 7
+	},
+	{
+		"courseId": "CSE-1320",
+		"courseTitle": "Intermediate Programming",
+		"section": "004",
+		"days": ["tue", "thu"],
+		"start": "13:30",
+		"end": "14:50",
+		"building": "ERB",
+		"room": "228",
+		"profId": "p002",
+		"capacity": 48,
+		"openSeats": 3
+	},
+	{
+		"courseId": "CSE-3311",
+		"courseTitle": "Object-Oriented Software Engineering",
+		"section": "002",
+		"days": ["tue", "thu"],
+		"start": "09:00",
+		"end": "10:20",
+		"building": "ERB",
+		"room": "131",
+		"profId": "p004",
+		"capacity": 50,
+		"openSeats": 12
+	},
+	{
+		"courseId": "CSE-4317",
+		"courseTitle": "Machine Learning",
+		"section": "001",
+		"days": ["mon", "wed"],
+		"start": "13:00",
+		"end": "14:20",
+		"building": "ERB",
+		"room": "105",
+		"profId": "p003",
+		"capacity": 35,
+		"openSeats": 4
+	},
+	{
+		"courseId": "CSE-4342",
+		"courseTitle": "Operating Systems",
+		"section": "003",
+		"days": ["mon", "wed"],
+		"start": "14:30",
+		"end": "15:50",
+		"building": "NH",
+		"room": "233",
+		"profId": "p002",
+		"capacity": 38,
+		"openSeats": 0
+	},
+	{
+		"courseId": "CSE-4323",
+		"courseTitle": "Human-Computer Interaction",
+		"section": "001",
+		"days": ["fri"],
+		"start": "10:00",
+		"end": "12:45",
+		"building": "FA",
+		"room": "312",
+		"profId": "p005",
+		"capacity": 25,
+		"openSeats": 6
+	},
+	{
+		"courseId": "STAT-3318",
+		"courseTitle": "Applied Probability and Statistics",
+		"section": "001",
+		"days": ["tue", "thu"],
+		"start": "11:00",
+		"end": "12:20",
+		"building": "PKH",
+		"room": "103",
+		"profId": "p006",
+		"capacity": 60,
+		"openSeats": 9
+	}
+]

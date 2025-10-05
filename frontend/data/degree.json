@@ -1,0 +1,124 @@
+{
+  "catalogYear": "2025-2026",
+  "degree": "BS Computer Science",
+  "totalCredits": 120,
+  "coreCourses": [
+    {
+      "id": "CSE-1105",
+      "title": "Intro to Computer Science",
+      "credits": 3,
+      "prerequisites": []
+    },
+    {
+      "id": "CSE-1310",
+      "title": "Introduction to Computing Using MATLAB",
+      "credits": 3,
+      "prerequisites": []
+    },
+    {
+      "id": "CSE-1320",
+      "title": "Intermediate Programming",
+      "credits": 3,
+      "prerequisites": ["CSE-1310"]
+    },
+    {
+      "id": "CSE-1325",
+      "title": "Object-Oriented Programming",
+      "credits": 3,
+      "prerequisites": ["CSE-1320"]
+    },
+    {
+      "id": "CSE-2312",
+      "title": "Computer Organization and Assembly Language Programming",
+      "credits": 3,
+      "prerequisites": ["CSE-1325"]
+    },
+    {
+      "id": "CSE-2320",
+      "title": "Algorithms and Data Structures",
+      "credits": 3,
+      "prerequisites": ["CSE-1325", "MATH-2326"]
+    },
+    {
+      "id": "CSE-3310",
+      "title": "Fundamentals of Software Engineering",
+      "credits": 3,
+      "prerequisites": ["CSE-2320"]
+    },
+    {
+      "id": "CSE-3311",
+      "title": "Object-Oriented Software Engineering",
+      "credits": 3,
+      "prerequisites": ["CSE-3310"]
+    }
+  ],
+  "advancedElectives": [
+    {
+      "id": "CSE-4309",
+      "title": "Database Systems",
+      "credits": 3,
+      "prerequisites": ["CSE-2320"]
+    },
+    {
+      "id": "CSE-4317",
+      "title": "Machine Learning",
+      "credits": 3,
+      "prerequisites": ["CSE-2320", "MATH-3319"]
+    },
+    {
+      "id": "CSE-4323",
+      "title": "Human-Computer Interaction",
+      "credits": 3,
+      "prerequisites": ["CSE-3311"]
+    },
+    {
+      "id": "CSE-4342",
+      "title": "Operating Systems",
+      "credits": 3,
+      "prerequisites": ["CSE-2312", "CSE-2320"]
+    },
+    {
+      "id": "CSE-4360",
+      "title": "Autonomous Robotics",
+      "credits": 3,
+      "prerequisites": ["CSE-3311"]
+    }
+  ],
+  "mathScienceSupport": [
+    {
+      "id": "MATH-1426",
+      "title": "Calculus I",
+      "credits": 4,
+      "prerequisites": []
+    },
+    {
+      "id": "MATH-2425",
+      "title": "Calculus II",
+      "credits": 4,
+      "prerequisites": ["MATH-1426"]
+    },
+    {
+      "id": "MATH-2326",
+      "title": "Calculus III",
+      "credits": 3,
+      "prerequisites": ["MATH-2425"]
+    },
+    {
+      "id": "MATH-3319",
+      "title": "Differential Equations & Linear Algebra",
+      "credits": 3,
+      "prerequisites": ["MATH-2425"]
+    },
+    {
+      "id": "STAT-3318",
+      "title": "Applied Probability and Statistics",
+      "credits": 3,
+      "prerequisites": ["MATH-2326"]
+    }
+  ],
+  "notes": [
+    "A minimum grade of C is required in all CSE courses counted toward the degree.",
+    "At least two advanced electives must be selected from the AI, Data, or Security tracks.",
+    "Students should complete Calculus II before attempting CSE-2320 to stay on pace."
+  ]
+}
