@@ -7,7 +7,7 @@ import json
 import logging
 from functools import lru_cache
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, Optional
 
 from dotenv import load_dotenv
 from flask import Flask, jsonify, request
@@ -18,18 +18,15 @@ from adapter_gemini import AdapterResult, GeminiAdapter
 
 # ---------------------------------------------------------------------------
 
+load_dotenv(".env")
 load_dotenv("../.env")
 
 LOGGER = logging.getLogger("advisor.backend")
 
 ROOT_DIR = Path(__file__).resolve().parents[1]
 DATA_DIR = ROOT_DIR / "frontend" / "data"
-ALLOWED_ORIGINS = [
-    "http://localhost",
-    "http://localhost:3000",
-    "http://localhost:4173",
-    "http://127.0.0.1",
-]
+# Allow all origins during development
+CORS_ORIGINS = "*"
 
 # ---------------------------------------------------------------------------
 
@@ -37,60 +34,24 @@ class KnowledgePayload(BaseModel):
     scheduleOptions: str = Field(..., description="JSON string of schedule options")
     professors: str = Field(..., description="JSON string of professor ratings")
     degreePlan: str = Field(..., description="JSON string of degree requirements")
-
-    @classmethod
-    def from_local_data(cls, max_length: Optional[int] = None) -> "KnowledgePayload":
-        """Load JSON files from DATA_DIR and return compacted JSON strings.
-        If max_length is provided, strings are truncated with an ellipsis.
-        """
-        try:
-            schedule = load_json(DATA_DIR / "schedule.json")
-            professors = load_json(DATA_DIR / "professors.json")
-            degree = load_json(DATA_DIR / "degree.json")
-        except Exception as err:
-            raise RuntimeError(f"Failed to load local JSON fixtures: {err}")
-
-        def compact(obj: Any) -> str:
-            s = json.dumps(obj, separators=(",", ":"), ensure_ascii=False)
-            if max_length and len(s) > max_length:
-                return s[: max_length - 3] + "..."
-            return s
-
-        return cls(
-            scheduleOptions=compact(schedule),
-            professors=compact(professors),
-            degreePlan=compact(degree),
-        )
-
-
-class ConversationTurn(BaseModel):
-    role: str = Field(..., description="Speaker role such as 'user' or 'assistant'")
-    content: str = Field(..., description="Message content")
-
-    @field_validator("role")
-    def normalize_role(cls, value: str) -> str:  # noqa: D417
-        role = value.strip().lower()
-        if role not in {"user", "assistant"}:
-            raise ValueError("role must be 'user' or 'assistant'")
-        return role
+    requiredClasses: str = Field(default="", description="Text content with required classes and rules")
 
 
 class QueryRequest(BaseModel):
     user: str = Field(..., description="Serialized student setup JSON from localStorage")
     knowledge: KnowledgePayload
     message: str = Field(..., min_length=1)
-    history: List[ConversationTurn] = Field(default_factory=list)
 
     @field_validator("user", mode="before")
     def ensure_json_like(cls, value: Any) -> Any:  # noqa: D417
-        if isinstance(value, str):
-            return value
         if isinstance(value, dict):
-            try:
-                return json.dumps(value, separators=(",", ":"), ensure_ascii=False)
-            except (TypeError, ValueError) as error:  # pragma: no cover - guard rails
-                raise ValueError("User payload must be JSON serializable") from error
-        raise ValueError("User payload must be a JSON string or object")
+            # Convert dict to JSON string
+            return json.dumps(value)
+        elif isinstance(value, str):
+            return value
+        else:
+            raise ValueError("User payload must be a JSON string or dict")
+        return value
 
 
 class QueryResponse(BaseModel):
@@ -104,23 +65,17 @@ class CachedData(RootModel):
 
 
 def load_json(path: Path) -> Any:
-    if not path.exists():
-        LOGGER.warning("JSON fixture not found at %s; using empty object", path)
-        return {}
+    with path.open("r", encoding="utf-8") as handle:
+        return json.load(handle)
 
-    # Use 'utf-8-sig' to strip a potential BOM and read the file as text so we can
-    # detect and short-circuit on empty content before attempting to parse JSON.
-    with path.open("r", encoding="utf-8-sig") as handle:
-        content = handle.read()
-        if not content.strip():
-            LOGGER.warning("Empty JSON file at %s; using empty object", path)
-            return {}
 
-        try:
-            return json.loads(content)
-        except json.JSONDecodeError:
-            LOGGER.warning("Empty or malformed JSON in %s; using empty object", path)
-            return {}
+def load_text(path: Path) -> str:
+    """Load a text file and return its contents as a string."""
+    try:
+        with path.open("r", encoding="utf-8") as handle:
+            return handle.read().strip()
+    except FileNotFoundError:
+        return ""
 
 
 @lru_cache(maxsize=1)
@@ -134,13 +89,14 @@ def preload_data() -> CachedData:
         "degreePlan": load_json(DATA_DIR / "degree.json"),
         "scheduleOptions": load_json(DATA_DIR / "schedule.json"),
         "professors": load_json(DATA_DIR / "professors.json"),
+        "requiredClasses": load_text(DATA_DIR / "required_classes.txt"),
     }
     return CachedData(payload)
 
 # ---------------------------------------------------------------------------
 
 app = Flask(__name__)
-CORS(app, origins=ALLOWED_ORIGINS, supports_credentials=True)
+CORS(app)
 adapter = GeminiAdapter()
 
 # ✅ FIXED: use before_first_request instead of before_serving
@@ -149,7 +105,7 @@ def warm_cache() -> None:
 
     try:
         preload_data()
-        LOGGER.info("Loaded local JSON fixtures from %s", DATA_DIR)
+        LOGGER.info(f"[INIT] Loaded fixtures from {DATA_DIR} (degree plan, schedules, professors, required classes)")
     except Exception as error:  # pragma: no cover - defensive logging
         LOGGER.exception("Failed to preload JSON fixture data: %s", error)
 
@@ -189,31 +145,47 @@ def _run_async(coro):
 
 @app.route("/query", methods=["POST"])
 def query_advisor() -> Any:
+    LOGGER.info("[API] POST /query - Processing advisor request")
     payload = request.get_json(silent=True)
     if payload is None:
+        LOGGER.warning("[API] Invalid JSON payload received")
         return jsonify({"detail": "Invalid JSON payload"}), 400
 
     try:
         query = QueryRequest(**payload)
+        LOGGER.info("[API] Request validation successful")
     except ValidationError as error:
-        return jsonify({"detail": "Invalid request", "errors": error.errors()}), 400
-
-    history_payload = [turn.model_dump() for turn in query.history]
+        LOGGER.warning(f"[API] Validation failed: {len(error.errors())} errors")
+        # Convert pydantic errors to serializable format
+        error_details = []
+        for err in error.errors():
+            error_details.append({
+                "field": ".".join(str(x) for x in err["loc"]),
+                "message": err["msg"],
+                "type": err["type"]
+            })
+        return jsonify({"detail": "Invalid request", "errors": error_details}), 400
 
     try:
+        # Merge frontend knowledge with server-side loaded data
+        cached_data = preload_data()
+        merged_knowledge = query.knowledge.model_dump()
+        merged_knowledge["requiredClasses"] = cached_data.root["requiredClasses"]
+        
+        LOGGER.info(f"[AI] Generating response for message: '{query.message[:50]}{'...' if len(query.message) > 50 else ''}'")
         result: AdapterResult = _run_async(
             adapter.generate_response(
                 user_setup=query.user,
-                knowledge=query.knowledge.model_dump(),
+                knowledge=merged_knowledge,
                 message=query.message,
-                history=history_payload,
             )
         )
+        LOGGER.info(f"[AI] Response generated successfully (provider: {result.debug.get('provider', 'unknown') if result.debug else 'unknown'})")
     except json.JSONDecodeError as error:
-        LOGGER.warning("Malformed JSON in payload: %s", error)
+        LOGGER.warning(f"[API] Malformed JSON in payload: {str(error)[:100]}")
         return jsonify({"detail": "Invalid JSON in request"}), 400
     except Exception as error:  # pragma: no cover - fail-safe
-        LOGGER.exception("Unexpected error handling query: %s", error)
+        LOGGER.exception(f"[API] Unexpected error: {str(error)[:100]}")
         return jsonify({"detail": "Advisor service error"}), 500
 
     response = QueryResponse(
@@ -221,9 +193,11 @@ def query_advisor() -> Any:
         schedule=result.schedule,
         debug=result.debug,
     )
+    LOGGER.info(f"[API] Response ready: {len(result.message)} chars, schedule={'yes' if result.schedule else 'no'}")
     return jsonify(response.model_dump())
+
 
 # ---------------------------------------------------------------------------
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(host="127.0.0.1", port=8080, debug=True)

@@ -13,6 +13,7 @@ import os
 import random
 import textwrap
 from dataclasses import dataclass
+from datetime import datetime
 from typing import Any, Dict, List, Optional
 
 try:
@@ -46,66 +47,95 @@ class GeminiAdapter:
 		user_setup: str,
 		knowledge: Dict[str, str],
 		message: str,
-		history: Optional[List[Dict[str, Any]]] = None,
 	) -> AdapterResult:
 		if self._model is None:
-			return self._fallback_response(user_setup, knowledge, message, history=history)
+			return self._fallback_response(user_setup, knowledge, message)
 
-		prompt = self._build_prompt(user_setup, knowledge, message, history)
+		prompt = self._build_prompt(user_setup, knowledge, message)
+		
+		# Save the complete prompt to debug file
+		try:
+			with open("debug_prompt.txt", "w", encoding="utf-8") as f:
+				f.write("=== GEMINI PROMPT DEBUG ===\n")
+				f.write(f"Timestamp: {datetime.now().isoformat()}\n")
+				f.write(f"Model: {self.model_name}\n")
+				f.write(f"User Message: {message}\n")
+				f.write(f"Prompt Length: {len(prompt):,} characters\n")
+				f.write("=" * 50 + "\n\n")
+				f.write(prompt)
+				f.write("\n\n" + "=" * 50 + "\n")
+				f.write("END OF PROMPT\n")
+			print(f"[DEBUG] Saved prompt to debug_prompt.txt ({len(prompt):,} chars)")
+		except Exception as debug_error:
+			print(f"[DEBUG] Warning: Could not save debug prompt: {debug_error}")
+		
 		try:
 			result = await asyncio.to_thread(self._model.generate_content, prompt)
 			text = result.text if hasattr(result, "text") else ""
+			print(f"[GEMINI] Response received ({len(text)} chars)")
+			
 			parsed = self._parse_json(text)
 			if not isinstance(parsed, dict) or "message" not in parsed:
+				print(f"[GEMINI] Warning: Unexpected response format")
 				raise ValueError("Gemini returned an unexpected payload")
+			
 			return AdapterResult(
 				message=str(parsed.get("message", "")),
 				schedule=parsed.get("schedule"),
-				debug={"provider": "gemini", "raw": text[:4000]},
+				debug={"provider": "gemini", "raw": text[:200] + "..." if len(text) > 200 else text},
 			)
 		except Exception as error:  # pragma: no cover - network errors
+			print(f"[GEMINI] Error: {str(error)[:100]}{'...' if len(str(error)) > 100 else ''}")
 			return self._fallback_response(
 				user_setup,
 				knowledge,
 				message,
-				history=history,
-				notes=f"Gemini error: {error}",
+				notes=f"Gemini error: {str(error)[:50]}",
 			)
 
 	def _parse_json(self, text: str) -> Dict[str, Any]:
 		"""Extract JSON from Gemini output which may contain code fences."""
 
 		if not text:
-			return {}
+			return {"message": "No response received"}
+		
 		snippet = text.strip()
+		
+		# Handle code fences
 		if "```" in snippet:
-			snippet = snippet.split("```", 2)[1]
+			parts = snippet.split("```")
+			if len(parts) >= 3:
+				snippet = parts[1]
+			elif len(parts) == 2:
+				snippet = parts[1]
+		
 		snippet = snippet.strip()
+		
+		# Remove language identifier
 		if snippet.startswith("json"):
 			snippet = snippet[4:].strip()
-		return json.loads(snippet)
+		
+		try:
+			return json.loads(snippet)
+		except json.JSONDecodeError:
+			# If JSON parsing fails, try to extract just the message part
+			try:
+				# Look for a JSON-like structure
+				start = snippet.find('{')
+				end = snippet.rfind('}')
+				if start >= 0 and end > start:
+					return json.loads(snippet[start:end+1])
+			except json.JSONDecodeError:
+				pass
+			
+			# Fallback: return the text as a message
+			return {"message": snippet}
 
-	def _build_prompt(
-		self,
-		user_setup: str,
-		knowledge: Dict[str, str],
-		message: str,
-		history: Optional[List[Dict[str, Any]]] = None,
-	) -> str:
+	def _build_prompt(self, user_setup: str, knowledge: Dict[str, str], message: str) -> str:
 		schedule_options = knowledge.get("scheduleOptions", "")
 		professors = knowledge.get("professors", "")
 		degree_plan = knowledge.get("degreePlan", "")
-
-		history_blocks: List[str] = []
-		if history:
-			for turn in history:
-				role = str(turn.get("role", "assistant")).lower()
-				role_label = "Student" if role == "user" else "Advisor"
-				content = str(turn.get("content", "")).strip()
-				if content:
-					history_blocks.append(f"{role_label}: {content}")
-
-		conversation = "\n".join(history_blocks) if history_blocks else "(No prior conversation)"
+		required_classes = knowledge.get("requiredClasses", "")
 
 		return textwrap.dedent(
 			f"""
@@ -117,6 +147,7 @@ class GeminiAdapter:
 			  - "schedule": optional object keyed by day (mon-sun) where each value
 				is a list of blocks with keys: from, to, course, title?, prof?.
 
+			
 			Keep responses concise, actionable, and tie recommendations to
 			prerequisites, professor ratings, and time preferences.
 
@@ -132,8 +163,8 @@ class GeminiAdapter:
 			Next-term schedule options JSON:
 			{schedule_options}
 
-			Conversation so far:
-			{conversation}
+			Required Classes Information:
+			{required_classes}
 
 			Student question:
 			{message}
@@ -145,7 +176,6 @@ class GeminiAdapter:
 		user_setup: str,
 		knowledge: Dict[str, str],
 		message: str,
-		history: Optional[List[Dict[str, Any]]] = None,
 		notes: Optional[str] = None,
 	) -> AdapterResult:
 		"""Generate a deterministic plan when Gemini is unavailable."""

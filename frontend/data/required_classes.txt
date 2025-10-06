@@ -1,0 +1,151 @@
+Here’s a **complete breakdown** of the **UTA Computer Science B.S. 2025–2026 curriculum**
+
+---
+
+## 🎓 **All Required Classes (with Credit Hours)**
+
+### **Core Requirements (General Education) – 42 Hours**
+
+| Area                                | Course                                                                            | Hours |
+| ----------------------------------- | --------------------------------------------------------------------------------- | ----- |
+| **Communication**                   | ENGL 1301 – Rhetoric & Composition I                                              | 3     |
+|                                     | COMS 2302 – Professional & Technical Communication                                | 3     |
+| **Mathematics**                     | MATH 1426 – Calculus I                                                            | 4     |
+|                                     | MATH 2425 – Calculus II                                                           | 4     |
+| **Life & Physical Sciences**        | PHYS 1443 – General Technical Physics I                                           | 4     |
+|                                     | PHYS 1444 – General Technical Physics II                                          | 4     |
+| **Social & Behavioral Sciences**    | ECON 2305 – Principles of Macroeconomics **or** IE 2308 – Economics for Engineers | 3     |
+| **Government**                      | POLS 2311 – U.S. Government                                                       | 3     |
+|                                     | POLS 2312 – State & Local Government                                              | 3     |
+| **U.S. History**                    | HIST 1301 – U.S. History I                                                        | 3     |
+|                                     | HIST 1302 – U.S. History II                                                       | 3     |
+| **Language, Philosophy, & Culture** | (Student choice from approved list)                                               | 3     |
+| **Creative Arts**                   | (Student choice from approved list)                                               | 3     |
+
+---
+
+### **Foundational Courses (Pre-Professional) – 23 Hours**
+
+| Course                 | Name                                    | Hours |
+| ---------------------- | --------------------------------------- | ----- |
+| UNIV 1131 or ENGR 1101 | Student Success / Intro to Engineering  | 1     |
+| CSE 1106               | Intro to Computer Science & Engineering | 1     |
+| CSE 1310               | Intro to Programming                    | 3     |
+| CSE 1320               | Intermediate Programming                | 3     |
+| CSE 1325               | Object-Oriented Programming             | 3     |
+| CSE 2312               | Computer Organization & Assembly        | 3     |
+| CSE 2315               | Discrete Structures                     | 3     |
+| CSE 3318               | Algorithms & Data Structures            | 3     |
+
+---
+
+### **Professional Program – 52 Hours**
+
+| Course                | Name                                                                         | Hours |
+| --------------------- | ---------------------------------------------------------------------------- | ----- |
+| IE 3301 or MATH 3313  | Probability & Statistics                                                     | 3     |
+| CSE 3302              | Programming Languages                                                        | 3     |
+| CSE 3310              | Fundamentals of Software Engineering                                         | 3     |
+| CSE 3314              | Professional Practices                                                       | 3     |
+| CSE 3315              | Theoretical Concepts in CSE                                                  | 3     |
+| CSE 3320              | Operating Systems                                                            | 3     |
+| CSE 3330              | Database Systems                                                             | 3     |
+| CSE 3380 or MATH 3330 | Linear Algebra for CSE                                                       | 3     |
+| CSE 4308              | Artificial Intelligence                                                      | 3     |
+| CSE 4316              | Senior Design I                                                              | 3     |
+| CSE 4317              | Senior Design II                                                             | 3     |
+| CSE 4344              | Computer Networks                                                            | 3     |
+| One of:               | CSE 4303 (Graphics) / CSE 4305 (Compilers) / CSE 4360 (Robotics)             | 3     |
+| One of:               | CSE 4380 (Info Sec) / CSE 4381 (Info Sec II) / CSE 4382 (Secure Programming) | 3     |
+| Technical Electives   | 5 approved upper-level CSE courses                                           | 15    |
+
+---
+
+### **TOTAL DEGREE HOURS: 123**
+
+---
+
+## 📘 **Ideal Four-Year Sequence (Recommended Order)**
+
+### **Year 1**
+
+**Fall (17 hrs)**
+
+* CSE 1310 – Intro to Programming (3)
+* ENGR 1101 or UNIV 1131 – Student Success (1)
+* MATH 1426 – Calculus I (4)
+* ENGL 1301 – Rhetoric & Composition (3)
+* Language, Philosophy, Culture elective (3)
+* HIST 1301 – U.S. History I (3)
+
+**Spring (15 hrs)**
+
+* CSE 1106 – Intro to CSE (1)
+* CSE 1320 – Intermediate Programming (3)
+* MATH 2425 – Calculus II (4)
+* PHYS 1443 – Technical Physics I (4)
+* CSE 2315 – Discrete Structures (3)
+
+---
+
+### **Year 2**
+
+**Fall (16 hrs)**
+
+* CSE 1325 – Object-Oriented Programming (3)
+* CSE 2312 – Computer Organization (3)
+* CSE 3318 – Algorithms & Data Structures (3)
+* PHYS 1444 – Technical Physics II (4)
+* HIST 1302 – U.S. History II (3)
+
+**Spring (15 hrs)**
+
+* CSE 3380 – Linear Algebra for CSE (3)
+* CSE 3310 – Intro to Software (3)
+* CSE 3320 – Operating Systems (3)
+* MATH 2326 – Calculus III (3)
+* COMS 2302 – Tech Communication (3)
+
+---
+
+### **Year 3**
+
+**Fall (15 hrs)**
+
+* CSE 3302 – Programming Languages (3)
+* CSE 3330 – Databases (3)
+* CSE 3315 – Theoretical Concepts (3)
+* IE 3301 – Probability & Statistics (3)
+* POLS 2311 – Government I (3)
+
+**Spring (15 hrs)**
+
+* CSE 4308 – Artificial Intelligence (3)
+* CSE 4344 – Computer Networks (3)
+* Technical Elective 1 (3)
+* Technical Elective 2 (3)
+* POLS 2312 – Government II (3)
+
+---
+
+### **Year 4**
+
+**Fall (15 hrs)**
+
+* CSE 3314 – Professional Practices (3)
+* CSE 4316 – Senior Design I (3)
+* CSE 4303 or 4305 or 4360 – Specialty (3)
+* Technical Elective 3 (3)
+* ECON 2305 or IE 2308 – Economics (3)
+
+**Spring (15 hrs)**
+
+* CSE 4317 – Senior Design II (3)
+* CSE 4380 or 4381 or 4382 – Security Elective (3)
+* Technical Elective 4 (3)
+* Technical Elective 5 (3)
+* Creative Arts Elective (3)
+
+---
+
+**IMPORTANT NOTE: IF CLASS INFORMATION IS NOT PROVIDED IN THE SCHEDULE, FEEL FREE TO CREATE REALISTIC DATA FOR THE CLASS, DO NOT SAY THAT YOU DO NOT HAVE THAT INFORMATION**
